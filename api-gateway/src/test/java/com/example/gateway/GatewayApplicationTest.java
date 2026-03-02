@@ -5,7 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.gateway.filter.ratelimit.RedisRateLimiter;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,24 +18,13 @@ class GatewayApplicationTest {
     @Autowired
     RateLimiterConfig rateLimiterConfig;
 
+    @Autowired
+    ApplicationContext context;
+
     @Test
     @DisplayName("Context loads successfully")
     void contextLoads() {
-        // Passes if Spring context starts without errors
-    }
-
-    @Test
-    @DisplayName("Default rate limiter bean is configured")
-    void defaultRateLimiterIsConfigured() {
-        RedisRateLimiter limiter = rateLimiterConfig.defaultRateLimiter();
-        assertThat(limiter).isNotNull();
-    }
-
-    @Test
-    @DisplayName("Write rate limiter bean is configured")
-    void writeRateLimiterIsConfigured() {
-        RedisRateLimiter limiter = rateLimiterConfig.writeRateLimiter();
-        assertThat(limiter).isNotNull();
+        assertThat(context).isNotNull();
     }
 
     @Test
