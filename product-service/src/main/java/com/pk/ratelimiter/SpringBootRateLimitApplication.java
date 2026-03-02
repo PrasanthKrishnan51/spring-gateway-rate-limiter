@@ -6,8 +6,8 @@ import org.springframework.cache.annotation.EnableCaching;
 
 @SpringBootApplication
 @EnableCaching
-public class SpringBootRedisApplication {
+public class SpringBootRateLimitApplication {
     public static void main(String[] args) {
-        SpringApplication.run(SpringBootRedisApplication.class, args);
+        SpringApplication.run(SpringBootRateLimitApplication.class, args);
     }
 }

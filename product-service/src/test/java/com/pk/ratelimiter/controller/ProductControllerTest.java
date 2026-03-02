@@ -1,7 +1,6 @@
-package com.example.app.controller;
+package com.pk.ratelimiter.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pk.ratelimiter.controller.ProductController;
 import com.pk.ratelimiter.dto.ProductDto;
 import com.pk.ratelimiter.exception.ProductException;
 import com.pk.ratelimiter.service.ProductService;
@@ -9,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -28,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ProductController.class)
+@AutoConfigureMockMvc
 @DisplayName("ProductController Integration Tests")
 class ProductControllerTest {
 

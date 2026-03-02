@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>api-gateway</artifactId>
-    <n>api-gateway</n>
+    <name>api-gateway</name>
     <description>Spring Cloud Gateway with Token Bucket Rate Limiting via Redis</description>
 
     <dependencies>

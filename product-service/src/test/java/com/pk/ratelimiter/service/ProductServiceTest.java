@@ -1,9 +1,10 @@
-package com.example.app.service;
+package com.pk.ratelimiter.service;
 
-import com.example.app.dto.ProductDto;
-import com.example.app.exception.ProductException;
-import com.example.app.model.Product;
-import com.example.app.repository.ProductRepository;
+
+import com.pk.ratelimiter.dto.ProductDto;
+import com.pk.ratelimiter.exception.ProductException;
+import com.pk.ratelimiter.model.Product;
+import com.pk.ratelimiter.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -16,16 +17,21 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ProductService Unit Tests")
 class ProductServiceTest {
 
-    @Mock  ProductRepository productRepository;
-    @InjectMocks ProductService productService;
+    @Mock
+    ProductRepository productRepository;
+    @InjectMocks
+    ProductService productService;
 
     Product sampleProduct;
 

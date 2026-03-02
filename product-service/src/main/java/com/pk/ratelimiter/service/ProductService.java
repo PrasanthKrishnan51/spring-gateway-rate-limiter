@@ -25,7 +25,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    @Cacheable(value = "products", key = "'all'")
+    //@Cacheable(value = "products", key = "'all'")
     public List<ProductDto.Response> getAllProducts() {
         log.debug("Cache MISS – fetching all products from MongoDB");
         return productRepository.findAll()

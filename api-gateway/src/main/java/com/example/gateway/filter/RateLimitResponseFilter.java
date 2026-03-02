@@ -30,7 +30,8 @@ public class RateLimitResponseFilter implements GlobalFilter, Ordered {
         return chain.filter(exchange).then(Mono.fromRunnable(() -> {
                     ServerHttpResponse response = exchange.getResponse();
 
-                    if (HttpStatus.TOO_MANY_REQUESTS.equals(response.getStatusCode())) {
+                    if (HttpStatus.TOO_MANY_REQUESTS.equals(response.getStatusCode())
+                            && !response.isCommitted()) {
 
                         String clientIp = extractClientIp(exchange);
                         String path = exchange.getRequest().getURI().getPath();
