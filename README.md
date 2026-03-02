@@ -1,4 +1,4 @@
-# 🚀 Spring Boot — API Gateway + Product Service
+# 🚀 Spring Boot — API Gateway + Token Bucket rate limiting
 
 Multi-module Maven project with Spring Cloud Gateway (Token Bucket rate limiting via Redis) fronting a Product CRUD microservice backed by MongoDB.
 
@@ -8,25 +8,25 @@ Multi-module Maven project with Spring Cloud Gateway (Token Bucket rate limiting
 
 ```
                         ┌─────────────────────────────────────────┐
-                        │           API Gateway  :8080             │
+                        │           API Gateway  :8080            │
   Client ──────────────►│                                         │
                         │  ┌──────────────────────────────────┐   │
-                        │  │     Token Bucket Rate Limiter     │   │
-                        │  │  (Spring Cloud Gateway + Redis)   │   │
-                        │  │                                   │   │
-                        │  │  GET  → 10 req/s  burst 20       │   │
-                        │  │  POST/PUT/DELETE → 5 req/s burst10│   │
+                        │  │     Token Bucket Rate Limiter    │   │
+                        │  │  (Spring Cloud Gateway + Redis)  │   │
+                        │  │                                  │   │
+                        │  │ GET  → 10 req/s  burst 20        │   │
+                        │  │ POST/PUT/DELETE → 5 req/s burst10│   │
                         │  └──────────────┬───────────────────┘   │
-                        │                 │  passes through        │
+                        │                 │  passes through       │
                         └─────────────────┼───────────────────────┘
                                           │
                                           ▼
                         ┌─────────────────────────────────────────┐
-                        │       Product Service  :8081             │
+                        │       Product Service  :8081            │
                         │                                         │
                         │  Controller → Service → Repository      │
                         │         ↕ Redis Cache (10min TTL)       │
-                        │         ↕ MongoDB                        │
+                        │         ↕ MongoDB                       │
                         └─────────────────────────────────────────┘
 
   Redis :6379  ─── shared by Gateway (rate limit buckets) + Product Service (response cache)
@@ -47,8 +47,8 @@ springboot-gateway-project/
 │   └── src/main/java/com/example/gateway/
 │       ├── GatewayApplication.java
 │       ├── config/
-│       │   ├── RateLimiterConfig.java      ← Token bucket beans (replenish, burst rates)
-│       │   └── GatewayRoutesConfig.java    ← Route definitions with rate limit per route
+│       │   └── RateLimiterConfig.java      ← Token bucket beans (replenish, burst rates)
+│       │   
 │       ├── filter/
 │       │   ├── RequestLoggingFilter.java   ← Global request/response logger
 │       │   └── RateLimitResponseFilter.java ← Enriches 429 with Retry-After headers
