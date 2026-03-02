@@ -177,9 +177,8 @@ curl -X DELETE "http://localhost:8080/gateway/rate-limit/reset?key=127.0.0.1"
 
 ```bash
 # Fire 25 rapid GET requests — first 20 pass, rest get 429
-for i in $(seq 1 25); do
-  STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/v1/products)
-  echo "Request $i: $STATUS"
+for i in {1..25}; do
+curl http://localhost:8080/api/v1/products
 done
 
 # Test write throttling — fire 12 POSTs rapidly (first 10 pass, rest get 429)
