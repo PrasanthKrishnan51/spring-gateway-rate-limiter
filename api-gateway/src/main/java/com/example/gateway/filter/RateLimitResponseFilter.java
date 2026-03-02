@@ -13,34 +13,48 @@ import reactor.core.publisher.Mono;
 /**
  * Enriches 429 Too Many Requests responses with standard rate limit headers
  * and logs the throttled client details.
- *
+ * <p>
  * Headers added on 429:
- *   X-RateLimit-Retry-After  : suggested wait time in seconds
- *   X-RateLimit-Message      : human-readable explanation
+ * X-RateLimit-Retry-After  : suggested wait time in seconds
+ * X-RateLimit-Message      : human-readable explanation
  */
 @Slf4j
 @Component
 public class RateLimitResponseFilter implements GlobalFilter, Ordered {
 
+    private static final String RETRY_AFTER_SECONDS = "1";
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+
         return chain.filter(exchange).then(Mono.fromRunnable(() -> {
-            ServerHttpResponse response = exchange.getResponse();
+                    ServerHttpResponse response = exchange.getResponse();
 
-            if (HttpStatus.TOO_MANY_REQUESTS.equals(response.getStatusCode())) {
-                String ip = exchange.getRequest().getRemoteAddress() != null
-                        ? exchange.getRequest().getRemoteAddress().getAddress().getHostAddress()
-                        : "unknown";
-                String path = exchange.getRequest().getURI().getPath();
+                    if (HttpStatus.TOO_MANY_REQUESTS.equals(response.getStatusCode())) {
 
-                log.warn("⚠ Rate limit exceeded — client: {}  path: {}", ip, path);
+                        String clientIp = extractClientIp(exchange);
+                        String path = exchange.getRequest().getURI().getPath();
 
-                // Add informative headers so clients know when to retry
-                response.getHeaders().add("X-RateLimit-Retry-After", "1");
-                response.getHeaders().add("X-RateLimit-Message",
-                        "Too many requests. Token bucket exhausted. Retry after 1 second.");
-            }
-        }));
+                        log.warn("Rate limit exceeded | client={} | path={}", clientIp, path);
+
+                        response.getHeaders().set("X-RateLimit-Retry-After", RETRY_AFTER_SECONDS);
+                        response.getHeaders().set("X-RateLimit-Message",
+                                "Too many requests. Please retry after " + RETRY_AFTER_SECONDS + " second(s).");
+                    }
+                }));
+    }
+
+    private String extractClientIp(ServerWebExchange exchange) {
+
+        String forwarded = exchange.getRequest().getHeaders().getFirst("X-Forwarded-For");
+
+        if (forwarded != null && !forwarded.isEmpty()) {
+            return forwarded.split(",")[0];
+        }
+
+        return exchange.getRequest().getRemoteAddress() != null
+                ? exchange.getRequest().getRemoteAddress().getAddress().getHostAddress()
+                : "unknown";
     }
 
     @Override
