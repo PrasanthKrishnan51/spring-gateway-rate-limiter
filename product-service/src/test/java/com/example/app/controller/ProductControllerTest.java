@@ -1,9 +1,10 @@
 package com.example.app.controller;
 
-import com.example.app.dto.ProductDto;
-import com.example.app.exception.ProductException;
-import com.example.app.service.ProductService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pk.ratelimiter.controller.ProductController;
+import com.pk.ratelimiter.dto.ProductDto;
+import com.pk.ratelimiter.exception.ProductException;
+import com.pk.ratelimiter.service.ProductService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,11 +17,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.Instant;
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ProductController.class)
 @DisplayName("ProductController Integration Tests")
@@ -28,7 +33,8 @@ class ProductControllerTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired ObjectMapper objectMapper;
-    @MockBean  ProductService productService;
+    @MockBean
+    ProductService productService;
 
     private ProductDto.Response sampleResponse() {
         return new ProductDto.Response(
