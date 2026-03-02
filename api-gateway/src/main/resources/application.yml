@@ -1,0 +1,84 @@
+spring:
+  application:
+    name: api-gateway
+
+  # Redis — required by RedisRateLimiter for token bucket state
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 5000ms
+
+  cloud:
+    gateway:
+      routes:
+        # Route 1 — GET /api/v1/products/** (read — relaxed limit)
+        - id: product-read
+          uri: ${PRODUCT_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/api/v1/products/**
+            - Method=GET
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                redis-rate-limiter.requestedTokens: 1
+                key-resolver: "#{@apiKeyResolver}"
+            - AddRequestHeader=X-Gateway-Source, api-gateway
+            - RemoveRequestHeader=Cookie
+
+        # Route 2 — POST/PUT/DELETE /api/v1/products/** (write — strict limit)
+        - id: product-write
+          uri: ${PRODUCT_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/api/v1/products/**
+            - Method=POST,PUT,DELETE
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                redis-rate-limiter.requestedTokens: 1
+                key-resolver: "#{@ipKeyResolver}"
+            - AddRequestHeader=X-Gateway-Source, api-gateway
+            - RemoveRequestHeader=Cookie
+
+        # Route 3 — Actuator passthrough (no rate limit)
+        - id: product-actuator
+          uri: ${PRODUCT_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/service/actuator/**
+          filters:
+            - RewritePath=/service/actuator/(?<seg>.*), /actuator/${seg}
+
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: [GET, POST, PUT, DELETE, OPTIONS]
+            allowedHeaders: "*"
+
+      httpclient:
+        connect-timeout: 5000
+        response-timeout: 10s
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway,metrics
+  endpoint:
+    gateway:
+      enabled: true
+    health:
+      show-details: always
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    com.example.gateway: DEBUG
+    reactor.netty: INFO
