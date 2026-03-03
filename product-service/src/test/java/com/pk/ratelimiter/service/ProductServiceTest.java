@@ -1,4 +1,3 @@
-/*
 package com.pk.ratelimiter.service;
 
 import com.pk.ratelimiter.dto.CreateRequest;
@@ -16,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,18 +58,17 @@ class ProductServiceTest {
         @DisplayName("returns mapped DTOs for every product in repository")
         void returnsAllProducts() {
             when(productRepository.findAll()).thenReturn(List.of(sampleProduct));
-
             ProductListResponse result = productService.getAllProducts();
-
             assertThat(result.getProducts().getFirst().getName()).isEqualTo("Wireless Mouse");
             verify(productRepository).findAll();
         }
 
         @Test
-        @DisplayName("returns empty list when repository is empty")
-        void returnsEmptyList() {
-            when(productRepository.findAll()).thenReturn(List.of());
-            assertThat(productService.getAllProducts()).asList();
+        @DisplayName("should return empty list when repository has no products")
+        void shouldReturnEmptyList() {
+            when(productRepository.findAll()).thenReturn(Collections.emptyList());
+            List<ProductResponse> result = productService.getAllProducts().getProducts();
+            assertThat(result).isEmpty();
         }
     }
 
@@ -161,4 +160,3 @@ class ProductServiceTest {
         }
     }
 }
-*/
