@@ -1,6 +1,9 @@
 package com.pk.ratelimiter.controller;
 
-import com.pk.ratelimiter.dto.ProductDto;
+import com.pk.ratelimiter.dto.CreateRequest;
+import com.pk.ratelimiter.dto.ProductListResponse;
+import com.pk.ratelimiter.dto.ProductResponse;
+import com.pk.ratelimiter.dto.UpdateRequest;
 import com.pk.ratelimiter.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -12,9 +15,16 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.Map;
 
 @Tag(name = "Products", description = "CRUD operations for the product catalog")
@@ -27,7 +37,7 @@ public class ProductController {
 
     @Operation(summary = "Get all products", description = "Returns every product in the catalog")
     @GetMapping
-    public ResponseEntity<List<ProductDto.Response>> getAllProducts() {
+    public ResponseEntity<ProductListResponse> getAllProducts() {
         return ResponseEntity.ok(productService.getAllProducts());
     }
 
@@ -37,26 +47,26 @@ public class ProductController {
         @ApiResponse(responseCode = "404", description = "Product not found", content = @Content)
     })
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDto.Response> getProductById(
+    public ResponseEntity<ProductResponse> getProductById(
             @Parameter(description = "MongoDB document ID") @PathVariable String id) {
         return ResponseEntity.ok(productService.getProductById(id));
     }
 
     @Operation(summary = "Get products by category", description = "Case-insensitive category filter. Cached per category.")
     @GetMapping("/category/{category}")
-    public ResponseEntity<List<ProductDto.Response>> getByCategory(@PathVariable String category) {
+    public ResponseEntity<ProductListResponse> getByCategory(@PathVariable String category) {
         return ResponseEntity.ok(productService.getProductsByCategory(category));
     }
 
     @Operation(summary = "Get in-stock products", description = "Returns only products with stock > 0.")
     @GetMapping("/in-stock")
-    public ResponseEntity<List<ProductDto.Response>> getInStock() {
+    public ResponseEntity<ProductListResponse> getInStock() {
         return ResponseEntity.ok(productService.getInStockProducts());
     }
 
     @Operation(summary = "Search products by name (partial match, not cached)")
     @GetMapping("/search")
-    public ResponseEntity<List<ProductDto.Response>> searchByName(
+    public ResponseEntity<ProductListResponse> searchByName(
             @Parameter(description = "Product name fragment") @RequestParam String name) {
         return ResponseEntity.ok(productService.searchByName(name));
     }
@@ -68,8 +78,8 @@ public class ProductController {
         @ApiResponse(responseCode = "409", description = "SKU already exists", content = @Content)
     })
     @PostMapping
-    public ResponseEntity<ProductDto.Response> createProduct(
-            @Valid @RequestBody ProductDto.CreateRequest request) {
+    public ResponseEntity<ProductResponse> createProduct(
+            @Valid @RequestBody CreateRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(request));
     }
 
@@ -79,9 +89,9 @@ public class ProductController {
         @ApiResponse(responseCode = "404", description = "Product not found", content = @Content)
     })
     @PutMapping("/{id}")
-    public ResponseEntity<ProductDto.Response> updateProduct(
+    public ResponseEntity<ProductResponse> updateProduct(
             @PathVariable String id,
-            @Valid @RequestBody ProductDto.UpdateRequest request) {
+            @Valid @RequestBody UpdateRequest request) {
         return ResponseEntity.ok(productService.updateProduct(id, request));
     }
 
