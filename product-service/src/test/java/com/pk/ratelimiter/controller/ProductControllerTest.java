@@ -1,14 +1,15 @@
 package com.pk.ratelimiter.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pk.ratelimiter.dto.ProductDto;
+import com.pk.ratelimiter.dto.CreateRequest;
+import com.pk.ratelimiter.dto.ProductListResponse;
+import com.pk.ratelimiter.dto.ProductResponse;
 import com.pk.ratelimiter.exception.ProductException;
 import com.pk.ratelimiter.service.ProductService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -28,7 +29,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ProductController.class)
-@AutoConfigureMockMvc
 @DisplayName("ProductController Integration Tests")
 class ProductControllerTest {
 
@@ -37,8 +37,8 @@ class ProductControllerTest {
     @MockBean
     ProductService productService;
 
-    private ProductDto.Response sampleResponse() {
-        return new ProductDto.Response(
+    private ProductResponse sampleResponse() {
+        return new ProductResponse(
                 "id1", "Wireless Mouse", "Ergonomic wireless mouse",
                 "SKU-001", 29.99, "Electronics", 50,
                 Instant.now(), Instant.now()
@@ -52,7 +52,7 @@ class ProductControllerTest {
         @Test
         @DisplayName("returns 200 with list of products")
         void getAllProducts() throws Exception {
-            when(productService.getAllProducts()).thenReturn(List.of(sampleResponse()));
+            when(productService.getAllProducts()).thenReturn(new ProductListResponse((List<ProductResponse>) sampleResponse()));
 
             mockMvc.perform(get("/api/v1/products"))
                     .andExpect(status().isOk())
@@ -94,7 +94,7 @@ class ProductControllerTest {
         @Test
         @DisplayName("returns 201 on valid create request")
         void created() throws Exception {
-            var req = new ProductDto.CreateRequest(
+            var req = new CreateRequest(
                     "Wireless Mouse", "Ergonomic wireless mouse",
                     "SKU-001", 29.99, "Electronics", 50);
 
@@ -110,7 +110,7 @@ class ProductControllerTest {
         @Test
         @DisplayName("returns 400 when request body is invalid")
         void validationFail() throws Exception {
-            var bad = new ProductDto.CreateRequest("", null, "", -1.0, "", -5);
+            var bad = new CreateRequest("", null, "", -1.0, "", -5);
 
             mockMvc.perform(post("/api/v1/products")
                             .contentType(MediaType.APPLICATION_JSON)
